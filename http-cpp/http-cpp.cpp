@@ -3,16 +3,31 @@
 
 #include "pch.h"
 #include "framework.h"
+#define _WINSOCK_DEPRECATED_NO_WARNINGS
 
 #include "http-cpp.h"
 
 
-void HandleClient(SOCKET clientSocket);
+SOCKET httpcpp::WebServerConnect(std::string address) {
 
-SOCKET serverSocket;
-SOCKET clientSocket;
+    size_t colonPos = address.find(":");
+    if (colonPos == std::string::npos) {
+        std::cerr << "Invalid address format." << std::endl;
+        return INVALID_SOCKET;
+    }
 
-SOCKET WebServerConnect() {
+    std::string ip = address.substr(0, colonPos);
+    std::string portStr = address.substr(colonPos + 1);
+
+    int port;
+    try {
+        port = std::stoi(portStr);
+    }
+    catch (const std::exception& e) {
+        std::cerr << "Invalid port number." << std::endl;
+        return INVALID_SOCKET;
+    }
+
     serverSocket = socket(AF_INET, SOCK_STREAM, 0);
     if (serverSocket == INVALID_SOCKET) {
         std::cerr << "Failed to create server socket." << std::endl;
@@ -21,8 +36,8 @@ SOCKET WebServerConnect() {
 
     sockaddr_in serverAddr;
     serverAddr.sin_family = AF_INET;
-    serverAddr.sin_addr.s_addr = INADDR_ANY;
-    serverAddr.sin_port = htons(8080);
+    serverAddr.sin_addr.s_addr = inet_addr(ip.c_str());
+    serverAddr.sin_port = htons(port);
 
     if (bind(serverSocket, (sockaddr*)&serverAddr, sizeof(serverAddr)) == SOCKET_ERROR) {
         std::cerr << "Failed to bind server socket." << std::endl;
@@ -39,8 +54,8 @@ SOCKET WebServerConnect() {
     return serverSocket;
 }
 
-void Server::start() {
-    serverSocket = WebServerConnect();
+void httpcpp::Init() {
+    serverSocket = WebServerConnect(web_address);
 
     if (serverSocket == INVALID_SOCKET)
         return;
@@ -51,23 +66,24 @@ void Server::start() {
 
     if (clientSocket == INVALID_SOCKET) {
         std::cerr << "Failed to accept client connection." << std::endl;
+        closesocket(serverSocket);
         return;
     }
 
     HandleClient(clientSocket);
 }
 
-void Server::RegisterHandler(const std::string& path, const std::string& httpMethod, RequestHandler handler) {
+void httpcpp::RegisterHandler(const std::string& path, const std::string& httpMethod, RequestHandler handler) {
     handlerMap[{path, httpMethod}] = handler;
 }
 
-std::string Server::BuildHttpResponse(const std::string& body) {
+std::string httpcpp::BuildHttpResponse(const std::string& body) {
     std::ostringstream response;
     response << "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\n" << body;
     return response.str();
 }
 
-void HandleClient(SOCKET clientSocket) {
+void httpcpp::HandleClient(SOCKET clientSocket) {
     char buffer[1024];
     int bytesRead = recv(clientSocket, buffer, sizeof(buffer) - 1, 0);
 
@@ -111,21 +127,20 @@ void HandleClient(SOCKET clientSocket) {
 
         std::string response;
 
-        auto handler = Server::handlerMap.find({ path, httpMethod });
-        if (handler != Server::handlerMap.end()) {
-            response = Server::BuildHttpResponse(handler->second(params));
+        auto handler = handlerMap.find({ path, httpMethod });
+        if (handler != handlerMap.end()) {
+            response = BuildHttpResponse(handler->second(params));
         }
         else {
-            response = Server::BuildHttpResponse("Not Found");
+            response = BuildHttpResponse("Not Found");
         }
-
 
         send(clientSocket, response.c_str(), response.size(), 0);
     }
     closesocket(clientSocket);
 }
 
-int Server::SendPOST(std::string path, std::string request, size_t length) {
+int httpcpp::SendPOST(std::string path, std::string request, size_t length) {
 
     std::string postRequest = "POST " + path +
         " HTTP/1.1\r\nHost: " + web_address + "\r\nContent-Type: application/json\r\nContent-Length: "
@@ -138,7 +153,7 @@ int Server::SendPOST(std::string path, std::string request, size_t length) {
     return -1;
 }
 
-int Server::SendGET(std::string path, std::string request, size_t length) {
+int httpcpp::SendGET(std::string path, std::string request, size_t length) {
 
     std::string getRequest = "GET " + path +
         " HTTP/1.1\r\nHost: " + web_address + "\r\nContent-Type: application/json\r\nContent-Length: "

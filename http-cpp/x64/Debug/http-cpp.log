@@ -1,6 +1,6 @@
-﻿  pch.cpp
-  http-cpp.cpp
-C:\Users\jks83\source\repos\http-cpp\http-cpp\http-cpp.cpp(124,59): warning C4267: '인수': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\jks83\source\repos\http-cpp\http-cpp\http-cpp.cpp(135,67): warning C4267: '인수': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\jks83\source\repos\http-cpp\http-cpp\http-cpp.cpp(148,65): warning C4267: '인수': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-  http-cpp.vcxproj -> C:\Users\jks83\source\repos\http-cpp\x64\Debug\http-cpp.lib
+﻿  http-cpp.cpp
+C:\Users\jks83\OneDrive\문서\GitHub\http-cpp\http-cpp\http-cpp.cpp(26,34): warning C4101: 'e' :참조되지 않은 지역 변수입니다.
+C:\Users\jks83\OneDrive\문서\GitHub\http-cpp\http-cpp\http-cpp.cpp(138,59): warning C4267: '인수': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\jks83\OneDrive\문서\GitHub\http-cpp\http-cpp\http-cpp.cpp(149,67): warning C4267: '인수': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\jks83\OneDrive\문서\GitHub\http-cpp\http-cpp\http-cpp.cpp(162,65): warning C4267: '인수': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  http-cpp.vcxproj -> C:\Users\jks83\OneDrive\문서\GitHub\http-cpp\x64\Debug\http-cpp.lib
